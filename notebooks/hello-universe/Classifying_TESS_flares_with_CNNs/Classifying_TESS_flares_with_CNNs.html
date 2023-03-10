@@ -1,0 +1,2018 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Classifying flaring stars with stella: a convolutional neural network for TESS &#8212; Hello Universe!</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/main.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/hello-universe/Classifying_TESS_flares_with_CNNs/Classifying_TESS_flares_with_CNNs';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Classifying JWST-HST galaxy mergers with CNNs" href="../Classifying_JWST-HST_galaxy_mergers_with_CNNs/Classifying_JWST-HST_galaxy_mergers_with_CNNs.html" />
+    <link rel="prev" title="Hello Universe" href="../../../intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/HelloUniverseLogo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/HelloUniverseLogo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    Hello Universe
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Classifying flaring stars with stella: a convolutional neural network for TESS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Classifying_JWST-HST_galaxy_mergers_with_CNNs/Classifying_JWST-HST_galaxy_mergers_with_CNNs.html">Classifying JWST-HST galaxy mergers with CNNs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Regressing_3D-HST_galaxy_redshift_with_decision_trees/Regressing_3D-HST_galaxy_redshift_with_decision_trees.html">Predicting galaxy redshift via regression on 3D-HST photometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Classifying_PanSTARRS_sources_with_unsupervised_learning/Classifying_PanSTARRS_sources_with_unsupervised_learning.html">Classifying Pan-STARRS sources with unsupervised and supervised learning</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/spacetelescope/hellouniverse" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/spacetelescope/hellouniverse/issues/new?title=Issue%20on%20page%20%2Fnotebooks/hello-universe/Classifying_TESS_flares_with_CNNs/Classifying_TESS_flares_with_CNNs.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/notebooks/hello-universe/Classifying_TESS_flares_with_CNNs/Classifying_TESS_flares_with_CNNs.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Classifying flaring stars with stella: a convolutional neural network for TESS</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-goals">Learning Goals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convolutional-neural-network-cnn-for-vector-classification">Convolutional Neural Network (CNN)  for Vector Classification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-the-training-data-using-stella">1. Download the training data using <code class="docutils literal notranslate"><span class="pre">stella</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-a-cnn-in-keras">3. Build a CNN in <code class="docutils literal notranslate"><span class="pre">Keras</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-the-cnn">4. Compile the CNN</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-the-cnn-to-perform-a-classification-task">5. Train the CNN to perform a classification task</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-the-cnn-performance">6. Test the CNN performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extensions-exercises">Extensions/Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-flares-in-a-new-dataset">7. Predict flares in a new dataset</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#about-this-notebook">About this Notebook</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citations">Citations</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <p><a id="top"></a></p>
+<section class="tex2jax_ignore mathjax_ignore" id="classifying-flaring-stars-with-stella-a-convolutional-neural-network-for-tess">
+<h1>Classifying flaring stars with stella: a convolutional neural network for TESS<a class="headerlink" href="#classifying-flaring-stars-with-stella-a-convolutional-neural-network-for-tess" title="Permalink to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="learning-goals">
+<h2>Learning Goals<a class="headerlink" href="#learning-goals" title="Permalink to this heading">#</a></h2>
+<p><strong>In this tutorial, you will see an example of building, compiling, and training a CNN to classify astronomical data in vector form.</strong>
+By the end of this tutorial you will have a working example of a simple Convolutional Neural Network (CNN) in <code class="docutils literal notranslate"><span class="pre">Keras</span></code>.</p>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h2>
+<p>CNNs are a class of machine learning (ML) algorithms that can extract information from data. In this notebook, you will walk through the basic steps of applying a CNN to data:</p>
+<ol class="arabic simple">
+<li><p>Load the data and visualize a sample of the data.</p></li>
+<li><p>Divide the data into training, validation, and testing sets.</p></li>
+<li><p>Build a CNN in <code class="docutils literal notranslate"><span class="pre">Keras</span></code>.</p></li>
+<li><p>Compile the CNN.</p></li>
+<li><p>Train the CNN to perform a classification task.</p></li>
+<li><p>Evaluate the CNN performance on test data with a confusion matrix.</p></li>
+<li><p>Build a new, unlabeled dataset and apply the CNN.</p></li>
+</ol>
+<p>CNNs can be applied to a wide range of vector analysis tasks, including classification and regression.
+Here, we will build, compile, and train CNN to classify whether a star has undergone a flaring event from its observed Transiting Exoplanet Survey Satellite (<a class="reference external" href="https://www.nasa.gov/tess-transiting-exoplanet-survey-satellite/">TESS</a>) 2-minute light curve, and where the flaring events are located within the time series.
+This work is based on the model described in the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020JOSS....5.2347F/abstract"><code class="docutils literal notranslate"><span class="pre">stella</span></code></a> software package.</p>
+<p><strong>NOTE:</strong> <em>The <a class="reference external" href="https://adina.feinste.in/stella/"><code class="docutils literal notranslate"><span class="pre">stella</span></code> team has publicly-available code and documentation</a> for demonstrating the architecture and optimal performance of this model, which we encourage you to check out!
+The goal of this notebook is to step through the model building and training process.</em></p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Permalink to this heading">#</a></h2>
+<p>This notebook uses the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code> to handle array functions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tarfile</span></code> for unpacking files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">astropy</span></code> for accessing FITS files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code> for plotting data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stella</span></code> for generating the training set and processing data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keras</span></code> for building the CNN</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sklearn</span></code> for model performance metrics</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lightkurve.search</span></code> for extracting light curves</p></li>
+</ul>
+<p>For the <code class="docutils literal notranslate"><span class="pre">stella</span></code> package, <em><strong>please install the development version</strong></em> (see their <a class="reference external" href="https://adina.feinste.in/stella/getting_started/installation.html">documentation</a> for instructions).</p>
+<p>For other packages, you can install them using <a class="reference external" href="https://pip.pypa.io/en/stable/"><code class="docutils literal notranslate"><span class="pre">pip</span></code></a> or <a class="reference external" href="https://docs.conda.io/en/latest/"><code class="docutils literal notranslate"><span class="pre">conda</span></code></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># arrays</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># unpacking files</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+
+<span class="c1"># fits</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.data</span> <span class="kn">import</span> <span class="n">download_file</span>
+
+<span class="c1"># plotting</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">ticker</span>
+
+<span class="c1"># stella CNN functions</span>
+<span class="kn">import</span> <span class="nn">stella</span>
+
+<span class="c1"># keras</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">load_model</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Activation</span><span class="p">,</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">BatchNormalization</span>
+<span class="kn">from</span> <span class="nn">keras.layers.convolutional</span> <span class="kn">import</span> <span class="n">Convolution1D</span><span class="p">,</span> <span class="n">MaxPooling1D</span>
+
+<span class="c1"># sklearn for performance metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+
+<span class="c1"># lightkurve</span>
+<span class="kn">from</span> <span class="nn">lightkurve.search</span> <span class="kn">import</span> <span class="n">search_lightcurve</span>
+
+<span class="c1"># from IPython import get_ipython</span>
+<span class="c1"># get_ipython().run_line_magic(&#39;matplotlib&#39;, &#39;notebook&#39;)</span>
+
+<span class="c1"># set random seed for reproducibility </span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-10 17:33:41.608669: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libcudart.so.11.0&#39;; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.8.12/x64/lib
+2023-03-10 17:33:41.608712: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="convolutional-neural-network-cnn-for-vector-classification">
+<h2>Convolutional Neural Network (CNN)  for Vector Classification<a class="headerlink" href="#convolutional-neural-network-cnn-for-vector-classification" title="Permalink to this heading">#</a></h2>
+<section id="download-the-training-data-using-stella">
+<h3>1. Download the training data using <code class="docutils literal notranslate"><span class="pre">stella</span></code><a class="headerlink" href="#download-the-training-data-using-stella" title="Permalink to this heading">#</a></h3>
+<p>Load the sample of TESS lightcurves (input vectors) and flare classifications (output labels) to be used to train the CNN from the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020JOSS....5.2347F/abstract"><code class="docutils literal notranslate"><span class="pre">stella</span></code></a> package.
+<code class="docutils literal notranslate"><span class="pre">stella</span></code> pre-processes the light curves and splits the data into training, test and validation sets.</p>
+<p>The training set contains stars observed at 2-minute cadence in TESS Sectors 1 and 2, classified by hand and presented as a flare catalog by <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/ab5d3a">Gunther et al. 2020</a>.
+The light curves are processed into examples of length 200 cadences, where each flaring event, if present, is located at the center of the example. The full sample of lightcurves contains 8694 positive classes (flare), and 35896 negative classes (no flare).
+For this notebook, we will download a subset of this sample.
+These data are described in <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/abac0a">Feinstein et al. 2020</a>.</p>
+<p>The CNN will be used to predict the presence of flaring events as a function of observing cadence.
+The input to the CNN is a light curve (time, flux, and flux error) and the output is a “probability light curve”, or probabilities (value between 0 and 1) that the measurement at each cadence is of a flaring event (1=flare, 0=no flare).
+In other words, the CNN performs a <strong>classification</strong> task at each cadence.
+Before a probability light curve can be produced, <code class="docutils literal notranslate"><span class="pre">stella</span></code> first pre-processes the input light curve by assembling it into examples of length 200 cadences, so that the model can predict a value for the flare probability at each valid cadence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="n">file_url</span> <span class="o">=</span> <span class="s1">&#39;https://archive.stsci.edu/hlsps/hellouniverse/hellouniverse_stella_500.tar.gz&#39;</span>
+
+<span class="c1"># open file</span>
+<span class="n">file</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">download_file</span><span class="p">(</span><span class="n">file_url</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+  
+<span class="c1"># extracting file</span>
+<span class="n">file</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 234 ms, sys: 88.2 ms, total: 322 ms
+Wall time: 1.51 s
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># build train, test, validation dataset, &quot;ds&quot;</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="s1">&#39;./hellouniverse_stella_500/&#39;</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">stella</span><span class="o">.</span><span class="n">FlareDataSet</span><span class="p">(</span><span class="n">fn_dir</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span>
+                         <span class="n">catalog</span><span class="o">=</span><span class="n">data_dir</span><span class="o">+</span><span class="s1">&#39;Guenther_2020_flare_catalog.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading in training set files.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/62 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 42%|████▏     | 26/62 [00:00&lt;00:00, 255.48it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 95%|█████████▌| 59/62 [00:00&lt;00:00, 294.47it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 62/62 [00:00&lt;00:00, 290.13it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>502 positive classes (flare)
+1342 negative classes (no flare)
+37.0% class imbalance
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">stella</span></code> dataset includes training, test and validation lightcurves (input vectors) and flare labels (output labels).
+<code class="docutils literal notranslate"><span class="pre">stella</span></code> applies the necessary pre-processing to the lightcurves for input to the CNN model.
+For more on how these are constructed, see <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/abac0a">Feinstein et al. 2020</a>.
+For our purposes (i.e., building the <code class="docutils literal notranslate"><span class="pre">stella</span></code> CNN from scratch to illustrate its structure and function), we first need to remove all lightcurves from the training, test and validation sets with NaN-valued inputs.
+To do this, we loop through the data and select only lightcurves without NaNs.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># remove lightcurves with NaNs from training, test and validation data</span>
+<span class="k">def</span> <span class="nf">remove_nans</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Determine indices of files without NaNs&#39;&#39;&#39;</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">input_data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:][</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">idx</span>
+
+
+<span class="c1"># find indices in train, test and validation sets without NaNs</span>
+<span class="n">idx_train</span> <span class="o">=</span> <span class="n">remove_nans</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">train_data</span><span class="p">)</span>
+<span class="n">idx_test</span> <span class="o">=</span> <span class="n">remove_nans</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">test_data</span><span class="p">)</span>
+<span class="n">idx_val</span> <span class="o">=</span> <span class="n">remove_nans</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">val_data</span><span class="p">)</span>
+
+<span class="n">ds</span><span class="o">.</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">train_data</span><span class="p">[</span><span class="n">idx_train</span><span class="p">]</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">train_labels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">train_labels</span><span class="p">[</span><span class="n">idx_train</span><span class="p">]</span>
+
+<span class="n">ds</span><span class="o">.</span><span class="n">test_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">test_data</span><span class="p">[</span><span class="n">idx_test</span><span class="p">]</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">test_labels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">test_labels</span><span class="p">[</span><span class="n">idx_test</span><span class="p">]</span>
+
+<span class="n">ds</span><span class="o">.</span><span class="n">val_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">val_data</span><span class="p">[</span><span class="n">idx_val</span><span class="p">]</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">val_labels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">val_labels</span><span class="p">[</span><span class="n">idx_val</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To visualize the structure of the lightcurves in the training set, we plot a random selection of 16 examples:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># select random image indices:</span>
+<span class="n">example_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">train_labels</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+
+<span class="c1"># pull the lightcurves and labels for these selections</span>
+<span class="n">example_lightcurves</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">train_data</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">example_ids</span><span class="p">]</span>
+<span class="n">example_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">train_labels</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">example_ids</span><span class="p">]</span>
+
+
+<span class="c1"># initialize your figure</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># loop through the randomly selected images and plot with labels</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;k&#39;</span><span class="p">}</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Flare&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Non-flare&#39;</span><span class="p">}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">example_ids</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">example_lightcurves</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">example_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">titles</span><span class="p">[</span><span class="n">example_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Cadences&#39;</span><span class="p">)</span>
+    
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/ad4e1a2a13b9be178cd95df16e46945abb3b06fb96cd2675486ec4c9a74a4173.png" src="../../../_images/ad4e1a2a13b9be178cd95df16e46945abb3b06fb96cd2675486ec4c9a74a4173.png" />
+</div>
+</div>
+</section>
+<section id="build-a-cnn-in-keras">
+<h3>3. Build a CNN in <code class="docutils literal notranslate"><span class="pre">Keras</span></code><a class="headerlink" href="#build-a-cnn-in-keras" title="Permalink to this heading">#</a></h3>
+<p>Here, we will build the CNN model described in <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/abac0a">Feinstein et al. 2020</a> and implemented in <code class="docutils literal notranslate"><span class="pre">stella</span></code> from scratch.</p>
+<p>Further details about Conv1D, MaxPooling1D, BatchNormalization, Dropout, and Dense layers can be found in the <a class="reference external" href="https://keras.io/api/layers/">Keras Layers Documentation</a>.
+Further details about the sigmoid and softmax activation function can be found in the <a class="reference external" href="https://keras.io/api/layers/activations/">Keras Activation Function Documentation</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># generate the model architecture</span>
+<span class="c1"># Written for Keras 2</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="n">filter1</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">filter2</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">dense</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">dropout</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="c1"># Define architecture for model</span>
+<span class="n">data_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">train_data</span><span class="p">)</span>
+<span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">train_data</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">x_in</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)</span>
+<span class="n">c0</span> <span class="o">=</span> <span class="n">Convolution1D</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">filter1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)(</span><span class="n">x_in</span><span class="p">)</span>
+<span class="n">b0</span> <span class="o">=</span> <span class="n">MaxPooling1D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">c0</span><span class="p">)</span>
+<span class="n">d0</span> <span class="o">=</span> <span class="n">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)(</span><span class="n">b0</span><span class="p">)</span>
+
+<span class="n">c1</span> <span class="o">=</span> <span class="n">Convolution1D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">filter2</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)(</span><span class="n">d0</span><span class="p">)</span>
+<span class="n">b1</span> <span class="o">=</span> <span class="n">MaxPooling1D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">c1</span><span class="p">)</span>
+<span class="n">d1</span> <span class="o">=</span> <span class="n">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)(</span><span class="n">b1</span><span class="p">)</span>
+
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">Flatten</span><span class="p">()(</span><span class="n">d1</span><span class="p">)</span>
+<span class="n">z0</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">dense</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">d2</span> <span class="o">=</span> <span class="n">Dropout</span><span class="p">(</span><span class="n">dropout</span><span class="p">)(</span><span class="n">z0</span><span class="p">)</span>
+<span class="n">y_out</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">)(</span><span class="n">d2</span><span class="p">)</span>
+
+<span class="n">cnn</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">x_in</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">y_out</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-10 17:33:50.125535: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libcuda.so.1&#39;; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.8.12/x64/lib
+2023-03-10 17:33:50.125581: W tensorflow/stream_executor/cuda/cuda_driver.cc:269] failed call to cuInit: UNKNOWN ERROR (303)
+2023-03-10 17:33:50.125611: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (fv-az577-919): /proc/driver/nvidia/version does not exist
+2023-03-10 17:33:50.125879: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="compile-the-cnn">
+<h3>4. Compile the CNN<a class="headerlink" href="#compile-the-cnn" title="Permalink to this heading">#</a></h3>
+<p>Next, we compile the model.
+As in <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/abac0a">Feinstein et al. 2020</a>, we select the Adam optimizer and the binary cross entropy loss function (as this is a binary classification problem).</p>
+<p>You can learn more about <a class="reference external" href="https://keras.io/api/optimizers/">optimizers</a> and more about <a class="reference external" href="https://keras.io/api/losses/">loss functions for regression tasks</a> in the <a class="reference external" href="https://keras.io/">Keras documentation</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compile Model</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="s1">&#39;adam&#39;</span>
+<span class="n">fit_metrics</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">]</span> 
+<span class="n">loss</span> <span class="o">=</span> <span class="s1">&#39;binary_crossentropy&#39;</span>
+<span class="n">cnn</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">fit_metrics</span><span class="p">)</span>
+<span class="n">cnn</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Model: &quot;model&quot;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>_________________________________________________________________
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> Layer (type)                Output Shape              Param #   
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=================================================================
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> input_1 (InputLayer)        [(None, 200, 1)]          0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> conv1d (Conv1D)             (None, 200, 7)            119       
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> max_pooling1d (MaxPooling1D  (None, 100, 7)           0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> )                                                               
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> dropout (Dropout)           (None, 100, 7)            0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> conv1d_1 (Conv1D)           (None, 100, 3)            1347      
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> max_pooling1d_1 (MaxPooling  (None, 50, 3)            0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1D)                                                             
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> dropout_1 (Dropout)         (None, 50, 3)             0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> flatten (Flatten)           (None, 150)               0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> dense (Dense)               (None, 32)                4832      
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> dropout_2 (Dropout)         (None, 32)                0         
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> dense_1 (Dense)             (None, 1)                 33        
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                                                 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=================================================================
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total params: 6,331
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Trainable params: 6,331
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Non-trainable params: 0
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>_________________________________________________________________
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train-the-cnn-to-perform-a-classification-task">
+<h3>5. Train the CNN to perform a classification task<a class="headerlink" href="#train-the-cnn-to-perform-a-classification-task" title="Permalink to this heading">#</a></h3>
+<p>We will start with training for 20 epochs, but this almost certainly won’t be long enough to get great results.
+Once you’ve run your model and evaluated the fit, you can come back here and run the next cell again for 100 epochs or longer.</p>
+<p>You can learn more about <code class="docutils literal notranslate"><span class="pre">fit</span></code> <a class="reference external" href="https://keras.rstudio.com/reference/fit.html">here</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nb_epoch</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">shuffle</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Train</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">cnn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">train_data</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">train_labels</span><span class="p">,</span>
+                  <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> 
+                  <span class="n">epochs</span><span class="o">=</span><span class="n">nb_epoch</span><span class="p">,</span> 
+                  <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">val_data</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">val_labels</span><span class="p">),</span> 
+                  <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+                  <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 22s - loss: 0.7383 - accuracy: 0.2969
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.6974 - accuracy: 0.5195 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.6707 - accuracy: 0.5960
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.6470 - accuracy: 0.6391
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.6313 - accuracy: 0.6635
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.6158 - accuracy: 0.6816
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.6124 - accuracy: 0.6867
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.6066 - accuracy: 0.6960
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 2s 31ms/step - loss: 0.6059 - accuracy: 0.6960 - val_loss: 0.6012 - val_accuracy: 0.7088
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 2/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5779 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5680 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5572 - accuracy: 0.7522
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5566 - accuracy: 0.7547
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5697 - accuracy: 0.7440
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5732 - accuracy: 0.7412
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5762 - accuracy: 0.7385
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5838 - accuracy: 0.7294
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.5823 - accuracy: 0.7322 - val_loss: 0.6062 - val_accuracy: 0.7088
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 3/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5832 - accuracy: 0.7344
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5867 - accuracy: 0.7383
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5723 - accuracy: 0.7455
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5983 - accuracy: 0.7203
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5861 - accuracy: 0.7320
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5820 - accuracy: 0.7354
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5752 - accuracy: 0.7410
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5826 - accuracy: 0.7330
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.5836 - accuracy: 0.7329 - val_loss: 0.5954 - val_accuracy: 0.7088
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 4/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5864 - accuracy: 0.7344
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5734 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5679 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5642 - accuracy: 0.7484
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5699 - accuracy: 0.7452
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+15/23 [==================&gt;...........] - ETA: 0s - loss: 0.5664 - accuracy: 0.7490
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+18/23 [======================&gt;.......] - ETA: 0s - loss: 0.5656 - accuracy: 0.7474
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+21/23 [==========================&gt;...] - ETA: 0s - loss: 0.5735 - accuracy: 0.7403
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 1s 23ms/step - loss: 0.5783 - accuracy: 0.7343 - val_loss: 0.5992 - val_accuracy: 0.7143
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 5/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5372 - accuracy: 0.7812
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5596 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5518 - accuracy: 0.7545
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5572 - accuracy: 0.7516
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5707 - accuracy: 0.7428
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5704 - accuracy: 0.7422
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5726 - accuracy: 0.7385
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5735 - accuracy: 0.7372
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 21ms/step - loss: 0.5722 - accuracy: 0.7384 - val_loss: 0.5875 - val_accuracy: 0.7143
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 6/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5615 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5565 - accuracy: 0.7578
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5690 - accuracy: 0.7455
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5590 - accuracy: 0.7516
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5639 - accuracy: 0.7464
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5654 - accuracy: 0.7432
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5648 - accuracy: 0.7418
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5594 - accuracy: 0.7472
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.5601 - accuracy: 0.7466 - val_loss: 0.5813 - val_accuracy: 0.7143
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 7/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.6077 - accuracy: 0.7031
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5380 - accuracy: 0.7617
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5246 - accuracy: 0.7723
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5334 - accuracy: 0.7672
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5428 - accuracy: 0.7608
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5486 - accuracy: 0.7549
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+20/23 [=========================&gt;....] - ETA: 0s - loss: 0.5531 - accuracy: 0.7516
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - ETA: 0s - loss: 0.5540 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.5540 - accuracy: 0.7500 - val_loss: 0.5733 - val_accuracy: 0.7143
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 8/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5584 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5439 - accuracy: 0.7578
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5526 - accuracy: 0.7433
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5476 - accuracy: 0.7437
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5518 - accuracy: 0.7452
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5494 - accuracy: 0.7480
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5430 - accuracy: 0.7516
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5413 - accuracy: 0.7536
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 21ms/step - loss: 0.5413 - accuracy: 0.7534 - val_loss: 0.5749 - val_accuracy: 0.7143
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 9/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4688 - accuracy: 0.8125
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5244 - accuracy: 0.7695
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5342 - accuracy: 0.7701
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5400 - accuracy: 0.7625
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5398 - accuracy: 0.7620
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5443 - accuracy: 0.7549
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5454 - accuracy: 0.7533
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5420 - accuracy: 0.7557
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 21ms/step - loss: 0.5401 - accuracy: 0.7568 - val_loss: 0.5571 - val_accuracy: 0.7308
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 10/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4952 - accuracy: 0.7656
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5483 - accuracy: 0.7422
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5404 - accuracy: 0.7455
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5329 - accuracy: 0.7547
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5282 - accuracy: 0.7596
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5252 - accuracy: 0.7607
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5288 - accuracy: 0.7566
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5279 - accuracy: 0.7585
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 21ms/step - loss: 0.5289 - accuracy: 0.7582 - val_loss: 0.5458 - val_accuracy: 0.7308
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 11/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5865 - accuracy: 0.7188
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5283 - accuracy: 0.7656
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5028 - accuracy: 0.7835
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5076 - accuracy: 0.7797
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.5243 - accuracy: 0.7620
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5206 - accuracy: 0.7656
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5163 - accuracy: 0.7689
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5169 - accuracy: 0.7663
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 21ms/step - loss: 0.5151 - accuracy: 0.7671 - val_loss: 0.5381 - val_accuracy: 0.7308
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 12/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.5307 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5070 - accuracy: 0.7695
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5066 - accuracy: 0.7634
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5011 - accuracy: 0.7734
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.4935 - accuracy: 0.7788
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.5013 - accuracy: 0.7725
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.5056 - accuracy: 0.7706
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.5062 - accuracy: 0.7727
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.5089 - accuracy: 0.7705 - val_loss: 0.5213 - val_accuracy: 0.7582
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 13/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4571 - accuracy: 0.8438
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5000 - accuracy: 0.7852
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.5041 - accuracy: 0.7746
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.5126 - accuracy: 0.7641
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+14/23 [=================&gt;............] - ETA: 0s - loss: 0.4984 - accuracy: 0.7757
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+17/23 [=====================&gt;........] - ETA: 0s - loss: 0.4942 - accuracy: 0.7794
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+20/23 [=========================&gt;....] - ETA: 0s - loss: 0.4999 - accuracy: 0.7734
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - ETA: 0s - loss: 0.4933 - accuracy: 0.7821
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 19ms/step - loss: 0.4933 - accuracy: 0.7821 - val_loss: 0.5134 - val_accuracy: 0.7582
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 14/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.3809 - accuracy: 0.8906
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.4566 - accuracy: 0.8047
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.4712 - accuracy: 0.7924
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.4836 - accuracy: 0.7812
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.4892 - accuracy: 0.7776
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.4868 - accuracy: 0.7832
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.4766 - accuracy: 0.7936
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.4800 - accuracy: 0.7912
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.4871 - accuracy: 0.7869 - val_loss: 0.5221 - val_accuracy: 0.7582
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 15/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4316 - accuracy: 0.8125
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.4680 - accuracy: 0.7812
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.4631 - accuracy: 0.7902
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.4650 - accuracy: 0.7953
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.4667 - accuracy: 0.7933
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.4740 - accuracy: 0.7920
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+18/23 [======================&gt;.......] - ETA: 0s - loss: 0.4669 - accuracy: 0.8003
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+21/23 [==========================&gt;...] - ETA: 0s - loss: 0.4679 - accuracy: 0.8013
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 1s 24ms/step - loss: 0.4689 - accuracy: 0.7985 - val_loss: 0.4905 - val_accuracy: 0.7637
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 16/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.3797 - accuracy: 0.8594
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.4701 - accuracy: 0.8047
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.4691 - accuracy: 0.8036
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.4717 - accuracy: 0.7953
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+14/23 [=================&gt;............] - ETA: 0s - loss: 0.4656 - accuracy: 0.7991
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+17/23 [=====================&gt;........] - ETA: 0s - loss: 0.4661 - accuracy: 0.8033
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+20/23 [=========================&gt;....] - ETA: 0s - loss: 0.4639 - accuracy: 0.8062
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - ETA: 0s - loss: 0.4571 - accuracy: 0.8108
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.4571 - accuracy: 0.8108 - val_loss: 0.4685 - val_accuracy: 0.7692
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 17/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4721 - accuracy: 0.7812
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.5060 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.4660 - accuracy: 0.7969
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.4661 - accuracy: 0.7969
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.4472 - accuracy: 0.8101
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.4593 - accuracy: 0.8008
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.4508 - accuracy: 0.8084
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.4411 - accuracy: 0.8153
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 20ms/step - loss: 0.4395 - accuracy: 0.8156 - val_loss: 0.4615 - val_accuracy: 0.7802
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 18/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.3924 - accuracy: 0.8438
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.4082 - accuracy: 0.8242
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.4112 - accuracy: 0.8304
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+10/23 [============&gt;.................] - ETA: 0s - loss: 0.4116 - accuracy: 0.8328
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+13/23 [===============&gt;..............] - ETA: 0s - loss: 0.4250 - accuracy: 0.8161
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+16/23 [===================&gt;..........] - ETA: 0s - loss: 0.4234 - accuracy: 0.8184
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.4331 - accuracy: 0.8125
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.4271 - accuracy: 0.8217
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 21ms/step - loss: 0.4293 - accuracy: 0.8204 - val_loss: 0.4525 - val_accuracy: 0.7802
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 19/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4486 - accuracy: 0.7969
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 4/23 [====&gt;.........................] - ETA: 0s - loss: 0.4252 - accuracy: 0.8203
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 7/23 [========&gt;.....................] - ETA: 0s - loss: 0.4248 - accuracy: 0.8192
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+11/23 [=============&gt;................] - ETA: 0s - loss: 0.4269 - accuracy: 0.8125
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+14/23 [=================&gt;............] - ETA: 0s - loss: 0.4189 - accuracy: 0.8203
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+17/23 [=====================&gt;........] - ETA: 0s - loss: 0.4209 - accuracy: 0.8199
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+20/23 [=========================&gt;....] - ETA: 0s - loss: 0.4210 - accuracy: 0.8211
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - ETA: 0s - loss: 0.4164 - accuracy: 0.8245
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 19ms/step - loss: 0.4164 - accuracy: 0.8245 - val_loss: 0.4174 - val_accuracy: 0.7967
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 20/20
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 1/23 [&gt;.............................] - ETA: 0s - loss: 0.4914 - accuracy: 0.7500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 5/23 [=====&gt;........................] - ETA: 0s - loss: 0.3999 - accuracy: 0.8500
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+ 9/23 [==========&gt;...................] - ETA: 0s - loss: 0.4110 - accuracy: 0.8438
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+12/23 [==============&gt;...............] - ETA: 0s - loss: 0.4056 - accuracy: 0.8424
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+15/23 [==================&gt;...........] - ETA: 0s - loss: 0.4028 - accuracy: 0.8448
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+19/23 [=======================&gt;......] - ETA: 0s - loss: 0.4062 - accuracy: 0.8388
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+22/23 [===========================&gt;..] - ETA: 0s - loss: 0.4007 - accuracy: 0.8438
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+23/23 [==============================] - 0s 19ms/step - loss: 0.4007 - accuracy: 0.8429 - val_loss: 0.4044 - val_accuracy: 0.7967
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the model to file</span>
+<span class="n">cnn_file</span> <span class="o">=</span> <span class="s1">&#39;flare_model.h5&#39;</span>
+<span class="n">cnn</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">cnn_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="test-the-cnn-performance">
+<h3>6. Test the CNN performance<a class="headerlink" href="#test-the-cnn-performance" title="Permalink to this heading">#</a></h3>
+<p>Apply the CNN to predict flares on the “test” set, not used for training or validating the CNN, and evaluate the performance using a confusion matrix.
+See the documentation from <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html">sklearn on confusion matrices</a> for more information.
+The code for generating and plotting the confusion matrix below was adapted from the application by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020A%26C....3200390C/abstract">Ciprijanovic et al. 2020</a> for <a class="reference external" href="https://github.com/deepskies/deepmerge-public">DeepMerge</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_confusion_matrix</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">input_labels</span><span class="p">):</span>
+    
+    <span class="c1"># Compute flare predictions for the test dataset</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">cnn</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+
+    <span class="c1"># Convert to binary classification </span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">predictions</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span> 
+    
+    <span class="c1"># Compute the confusion matrix by comparing the test labels (ds.test_labels) with the test predictions</span>
+    <span class="n">cm</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">input_labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">cm</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Normalize the confusion matrix results. </span>
+    <span class="n">cm_norm</span> <span class="o">=</span> <span class="n">cm</span> <span class="o">/</span> <span class="n">cm</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># Plotting</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">cm_norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;binary_r&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Confusion matrix&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.08</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;Flare&#39;</span><span class="p">,</span> <span class="s1">&#39;No Flare&#39;</span><span class="p">])</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="s1">&#39;Flare&#39;</span><span class="p">,</span> <span class="s1">&#39;No Flare&#39;</span><span class="p">])</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Predicted&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;.2f&#39;</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="n">cm_norm</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cm_norm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cm_norm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="nb">format</span><span class="p">(</span><span class="n">cm_norm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">fmt</span><span class="p">),</span> 
+                    <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span> <span class="k">if</span> <span class="n">cm_norm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">thresh</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_confusion_matrix</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">test_data</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">test_labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/b236f004e5ef59d45a046b0d067f2e4cd08083d853b9bf267bca1577bc0d9466.png" src="../../../_images/b236f004e5ef59d45a046b0d067f2e4cd08083d853b9bf267bca1577bc0d9466.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>The results don’t look great… why?</strong> From the confusion matrix in Section 6, when faced with the test dataset (i.e., data not used for training or validation), the model predicts a large fraction of false positive flare events, and consequently not enough true negative flare events).
+The published models from <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/abac0a">Feinstein et al. 2020</a> perform <em>much better</em>, and the confusion matrix <strong>should look more like the results shown below</strong>.
+We note that in this notebook we are using a subset of the available training data, and we are training the model for only a subset of the optimal number of epochs for space and time considerations, but you are welcome to augment these restrictions, and as always check out <a class="reference external" href="https://adina.feinste.in/stella/">the <code class="docutils literal notranslate"><span class="pre">stella</span></code> repository</a> for more information!</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file_url</span> <span class="o">=</span> <span class="s1">&#39;https://archive.stsci.edu/hlsps/stella/hlsp_stella_tess_ensemblemodel_s042_tess_v0.1.0_cnn.h5&#39;</span>
+<span class="n">pretrained_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">download_file</span><span class="p">(</span><span class="n">file_url</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+<span class="n">plot_confusion_matrix</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">test_data</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">test_labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../../_images/5cce97f4ddf846e66db2bc1e924e4a9b119f75063163bc1fe68d0e97c46abc18.png" src="../../../_images/5cce97f4ddf846e66db2bc1e924e4a9b119f75063163bc1fe68d0e97c46abc18.png" />
+</div>
+</div>
+<ul class="simple">
+<li><p><strong>Can I improve the model by increasing the number of epochs its training for?</strong>
+We only trained for 20 epochs, which is many fewer than the published model.
+Go back to Section 4 (“Train the CNN to perform a classification task”) and increase the number of epochs to 100 (or more!) and train again.
+Does your model perform better?
+Your results may look better/worse/different from the published results due to the stochastic nature of training.</p></li>
+<li><p><strong>Can I try a different model?  I think the results could be improved.</strong>
+Yes! You can try adding layers, swapping out the max pooling, changing the activation functions, swapping out the loss function, or trying a different optimizer or learning rate.
+Experiment and see what model changes give the best results.
+You should be aware: when you start training again, you pick up where your model left off.
+If you want to “reset” your model to epoch 0 and random weights, you should run the cells to make and compile the model again.</p></li>
+<li><p><strong>I want to test my model on my training data!</strong>
+No.
+You will convince yourself that your results are much better than they actually are.
+Always keep your training, validation, and testing sets completely separate!</p></li>
+</ul>
+</section>
+<section id="extensions-exercises">
+<h2>Extensions/Exercises<a class="headerlink" href="#extensions-exercises" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Is the model “overfitting”?</strong>
+Using the results of the model’s <code class="docutils literal notranslate"><span class="pre">history</span></code> (saved as a result of the model training process), investigate the behavior of the training and validation losses and accuracies as a function of training epoch.
+Make a plot or two!
+How do the training and validation losses compare?
+How do the training and validation accuracies compare?
+If the loss for the validation set is higher than for the training set (and conversely, the accuracy for the validation set is lower than for the training set), the model may be suffering from <a class="reference external" href="https://www.tensorflow.org/tutorials/keras/overfit_and_underfit">overfitting</a>.</p></li>
+<li><p><strong>Try applying this model to a new dataset</strong>
+Using the built-in functionality provided by the <code class="docutils literal notranslate"><span class="pre">stella</span></code> package, you can pre-process your own 2-minute cadence TESS light curves and predict flares.
+An example workflow is shown below:</p></li>
+</ul>
+<section id="predict-flares-in-a-new-dataset">
+<h3>7. Predict flares in a new dataset<a class="headerlink" href="#predict-flares-in-a-new-dataset" title="Permalink to this heading">#</a></h3>
+<p>In this step, we will download light curves directly from TESS, pre-process them with <code class="docutils literal notranslate"><span class="pre">stella</span></code> for input to the CNN, and predict flares.
+The sample is a set of bright M dwarfs not featured in the training/validation/tests datasets.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ticids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;120461526&#39;</span><span class="p">,</span> <span class="s1">&#39;278779899&#39;</span><span class="p">,</span> <span class="s1">&#39;139754153&#39;</span><span class="p">,</span> <span class="s1">&#39;273418879&#39;</span><span class="p">,</span> <span class="s1">&#39;52121469&#39;</span><span class="p">,</span> <span class="s1">&#39;188580272&#39;</span><span class="p">,</span> <span class="s1">&#39;394015919&#39;</span><span class="p">,</span> <span class="s1">&#39;402104884&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># for all the selected targets, pull the available lightcurves using the lightkurve package</span>
+<span class="n">lcs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ticids</span><span class="p">:</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">search_lightcurve</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;TIC&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span> <span class="n">mission</span><span class="o">=</span><span class="s1">&#39;TESS&#39;</span><span class="p">,</span> <span class="n">sector</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">author</span><span class="o">=</span><span class="s1">&#39;SPOC&#39;</span><span class="p">)</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">download_all</span><span class="p">()</span>
+    <span class="n">lcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># load the CNN using `stella`</span>
+<span class="n">cnn_stella</span> <span class="o">=</span> <span class="n">stella</span><span class="o">.</span><span class="n">ConvNN</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lcs</span><span class="p">):</span>
+    <span class="c1"># pull out on the first light curve in each set, if more than one exist</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span> <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+    <span class="c1"># predict the flare probability light cuvey for the input data using `stella` </span>
+    <span class="c1"># (which applies the necessary pre-processing to the data for input to the CNN)</span>
+    <span class="n">cnn_stella</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">cnn_file</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="n">lc</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">fluxes</span><span class="o">=</span><span class="n">lc</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="n">errs</span><span class="o">=</span><span class="n">lc</span><span class="o">.</span><span class="n">flux_err</span><span class="p">)</span>
+    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cnn_stella</span><span class="o">.</span><span class="n">predict_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cnn_stella</span><span class="o">.</span><span class="n">predict_flux</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">cnn_stella</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mf">1.</span> <span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Probability of Flare&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [BJD-2457000]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Normalized Flux&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;TIC </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">targetid</span><span class="p">));</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.89s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.90s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.80s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.80s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:04&lt;00:00,  4.88s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:04&lt;00:00,  4.88s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.86s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.87s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.80s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.80s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.94s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.94s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.92s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.92s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/1 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.76s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1/1 [00:03&lt;00:00,  3.76s/it]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<img alt="../../../_images/c56a18e1a34a994dc88e92d95378d2115b084ca77415e9440bcafc2c5915e877.png" src="../../../_images/c56a18e1a34a994dc88e92d95378d2115b084ca77415e9440bcafc2c5915e877.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="id1">
+<h2>FAQ<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Why does the data near gaps have a high probability of being flares?</strong>
+This isn’t necessarily the case.
+The issue here is that <code class="docutils literal notranslate"><span class="pre">stella</span></code> needs 100 data points on either side of a given cadence to create an “example” (those 200 cadence samples we trained on).
+When there’s a gap in the data, the first 100 points can’t be centered in each example properly.
+As such, <code class="docutils literal notranslate"><span class="pre">stella</span></code> cannot accurately predict flares in these data and skips it.</p></li>
+<li><p><strong>But what if there are flares near the data gaps?</strong>
+There may very well be flares towards the data gaps!
+Unfortunately, <code class="docutils literal notranslate"><span class="pre">stella</span></code> cannot find those for you at present, and you’ll need to identify those yourself.</p></li>
+</ul>
+</section>
+<section id="about-this-notebook">
+<h2>About this Notebook<a class="headerlink" href="#about-this-notebook" title="Permalink to this heading">#</a></h2>
+<p><strong>Author:</strong><br />
+Claire Murray, Assistant Astronomer, <a class="reference external" href="mailto:cmurray1&#37;&#52;&#48;stsci&#46;edu">cmurray1<span>&#64;</span>stsci<span>&#46;</span>edu</a></p>
+<p><strong>Additional Contributors:</strong><br />
+Yotam Cohen, STScI Staff Scientist, <a class="reference external" href="mailto:ycohen&#37;&#52;&#48;stsci&#46;edu">ycohen<span>&#64;</span>stsci<span>&#46;</span>edu</a></p>
+<p><strong>Info:</strong><br />
+This notebook is based on the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020JOSS....5.2347F/abstract"><code class="docutils literal notranslate"><span class="pre">stella</span></code></a> software package for the CNN used in <a class="reference external" href="https://dx.doi.org/10.3847/1538-3881/abac0a">“Flare Statistics for Young Stars from a Convolutional Neural Network Analysis of TESS Data”</a>, Adina D. Feinstein et al. Astronomical Journal, Volume 160, Issue 5, November 2020, and the notebook “CNN_for_cluster_masses” by Michelle Ntampaka, Assistant Astronomer, <a class="reference external" href="mailto:mntampaka&#37;&#52;&#48;stsci&#46;edu">mntampaka<span>&#64;</span>stsci<span>&#46;</span>edu</a>.</p>
+<p><strong>Updated On:</strong> 2022-5-25</p>
+</section>
+<section id="citations">
+<h2>Citations<a class="headerlink" href="#citations" title="Permalink to this heading">#</a></h2>
+<p>If you use this CNN, <code class="docutils literal notranslate"><span class="pre">stella</span></code>, <code class="docutils literal notranslate"><span class="pre">astropy</span></code>, or <code class="docutils literal notranslate"><span class="pre">keras</span></code> for published research, please cite the
+authors. Follow these links for more information:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020AJ....160..219F/abstract">Citing the CNN</a></p></li>
+<li><p><a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020JOSS....5.2347F/abstract">Citing <code class="docutils literal notranslate"><span class="pre">stella</span></code></a></p></li>
+<li><p><a class="reference external" href="https://www.astropy.org/acknowledging.html">Citing <code class="docutils literal notranslate"><span class="pre">astropy</span></code></a></p></li>
+<li><p><a class="reference external" href="https://keras.io/getting_started/faq/#how-should-i-cite-keras">Citing <code class="docutils literal notranslate"><span class="pre">keras</span></code></a></p></li>
+</ul>
+<p><span class="xref myst">Top of Page</span>
+<img style="float: right;" src="https://raw.githubusercontent.com/spacetelescope/notebooks/master/assets/stsci_pri_combo_mark_horizonal_white_bkgd.png" alt="Space Telescope Logo" width="200px"/></p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./notebooks/hello-universe/Classifying_TESS_flares_with_CNNs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../../../intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Hello Universe</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../Classifying_JWST-HST_galaxy_mergers_with_CNNs/Classifying_JWST-HST_galaxy_mergers_with_CNNs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Classifying JWST-HST galaxy mergers with CNNs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-goals">Learning Goals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convolutional-neural-network-cnn-for-vector-classification">Convolutional Neural Network (CNN)  for Vector Classification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-the-training-data-using-stella">1. Download the training data using <code class="docutils literal notranslate"><span class="pre">stella</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-a-cnn-in-keras">3. Build a CNN in <code class="docutils literal notranslate"><span class="pre">Keras</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-the-cnn">4. Compile the CNN</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-the-cnn-to-perform-a-classification-task">5. Train the CNN to perform a classification task</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-the-cnn-performance">6. Test the CNN performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extensions-exercises">Extensions/Exercises</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-flares-in-a-new-dataset">7. Predict flares in a new dataset</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#about-this-notebook">About this Notebook</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citations">Citations</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner">
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By STScI Notebook Dev
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div></div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
